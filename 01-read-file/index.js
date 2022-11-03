@@ -1,15 +1,9 @@
-const fs = require('node:fs/promises');
-const path = require('node:path');
+const fs = require('fs');
+const path = require('path');
 
-const readTxt = async () => {
-    try {
-        const data = await fs.readFile(path.join(__dirname, 'text.txt'), 'utf-8');
-        console.log(data)
-    }
+const readStream = fs.createReadStream(path.join(__dirname, 'text.txt'), {encoding: 'utf-8'})
+const text = []
 
-    catch (err) {
-        console.error(err)
-    }
-}
-
-readTxt()
+readStream.on('error', err => console.error(`Error: ${err}`))
+readStream.on('data', word => text.push(word))
+readStream.on('end', () => console.log(text.join('')))
