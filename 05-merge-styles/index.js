@@ -1,31 +1,18 @@
-const fs = require('fs')
-const { resolve, join } = require('node:path');
-const { readFile, writeFile,rm} = require('node:fs');
-const { Buffer } = require('node:buffer');
-const path = require('path')
-const { copyFile, constants } =  require('node:fs');
-const { default: test } = require('node:test');
-const currentPath = path.join(__dirname, 'styles')
+const fs = require('fs/promises');
+const path = require('path');
 
+const stylesPath = path.join(__dirname, 'styles');
+const buildPath = path.join(__dirname, 'project-dist');
 
-filenames = fs.readdirSync(currentPath, { withFileTypes: true } );
-filenames1 = fs.readdirSync("project-dist", { withFileTypes: false } );
-
-
-function createBundle() {    
-    if (Array.from(filenames1)[0]=="bundle.css") {
-        fs.rm("project-dist/bundle.css", {force: true}, ()=>{})
-    }
-    filenames.forEach(file => {
-    if (file.isFile() && file.name.split(".")[1] == "css") {
-    readFile(path.join(currentPath, file.name), "utf-8", (err, data) => {
-    fs.appendFile("project-dist/bundle.css", data, ()=>{})
-    });   
-}
-})
+const mergeCss = async (stylesPath, buildPath, fileName) => {
+  const styles = await fs.readdir(stylesPath, { withFileTypes: true })
+  const filtredStyles= styles.filter(item => path.extname(item.name) === '.css' && item.isFile());
+  const styleCss = await Promise.all(filtredStyles.map(file => fs.readFile(path.join(stylesPath, file.name), 'utf-8')));
+  
+  await fs.writeFile(path.join(buildPath, fileName), styleCss.join('\n'));
+  
 }
 
-createBundle();
-
+mergeCss(stylesPath, buildPath, 'bundle.css')
 
 
