@@ -8,10 +8,7 @@ const {  constants } =  require('node:fs');
 const { default: test } = require('node:test');
 const { pipeline } = require('stream/promises');
 
-
-
-
-const assembleHtml = async (tPath, componentsPath, outputPath) => {
+const assembleHtmlCss = async (tPath, componentsPath, outputPath) => {
     const rs = fs.createReadStream(tPath, 'utf-8');
     const ws = fs.createWriteStream(outputPath);
 
@@ -30,14 +27,20 @@ const assembleHtml = async (tPath, componentsPath, outputPath) => {
       }
       ws.write(tempHtml);
     }); //заменяем в строке {{элементы}} и записываем в аутпут
+    //css bundle
+    const cssOut = fs.createWriteStream(path.join(__dirname, 'project-dist/style.css'), 'utf-8');
+    const cssIn = await fs.promises.readdir(path.join(__dirname, 'styles'), {withFileTypes: true});
+    for (file of cssIn) {
+    if (file.isFile() && path.extname(path.join(__dirname, 'styles', file.name)) === '.css') {
+        const input = fs.createReadStream(path.join(__dirname, 'styles', file.name), 'utf8');
+        input.on('data', data => cssOut.write(data));
+    }
+}
   };
   
-
-
 async function makeDirectory() {
     const projectFolder = join(__dirname, 'project-dist');
     const dirCreation = await mkdir(projectFolder, { recursive: true });
-    
 }
 
 
@@ -46,5 +49,7 @@ async function makeDirectory() {
 
 
 
+
 makeDirectory();
-assembleHtml("template.html", 'components', 'project-dist/index.html')
+
+assembleHtmlCss("template.html", 'components', 'project-dist/index.html')
