@@ -27,6 +27,7 @@ const assembleHtmlCss = async (tPath, componentsPath, outputPath) => {
       }
       ws.write(tempHtml);
     }); //заменяем в строке {{элементы}} и записываем в аутпут
+
     //css bundle
     const cssOut = fs.createWriteStream(path.join(__dirname, 'project-dist/style.css'), 'utf-8');
     const cssIn = await fs.promises.readdir(path.join(__dirname, 'styles'), {withFileTypes: true});
@@ -43,6 +44,19 @@ async function makeDirectory() {
     const dirCreation = await mkdir(projectFolder, { recursive: true });
 }
 
+async function copyDir(input, output) {
+  const assets = await fs.promises.readdir(input, { withFileTypes: true });
+  await fs.promises.mkdir(output, { recursive: true });
+  for (file of assets) {
+      if (file.isDirectory()) {
+          await copyDir(path.join(input , file.name), path.join(output, file.name));
+      } else {
+          await fs.promises.copyFile(path.join(input , file.name), path.join(output, file.name));
+      }
+  }
+}
+
+
 
 
 
@@ -51,5 +65,5 @@ async function makeDirectory() {
 
 
 makeDirectory();
-
+copyDir(path.join(__dirname, 'assets'), path.join(__dirname, 'project-dist/assets'));
 assembleHtmlCss("template.html", 'components', 'project-dist/index.html')
