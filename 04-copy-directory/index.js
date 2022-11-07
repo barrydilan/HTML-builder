@@ -14,10 +14,16 @@ async function makeDirectory() {
 
 function copyDIR() {
     makeDirectory()
-    filenames = fs.readdirSync(currentPath, { withFileTypes: false } );
-    filenames.forEach(file => {
-        copyFile(`files/${file}`, `files-copy/${file}`, () => {});
-    })
+    let filenames = []
+    fs.readdir(currentPath, { withFileTypes: false }, (err, files) => {
+        files.forEach(file => {
+            copyFile(`files/${file}`, `files-copy/${file}`, () => {});
+        })
+    } );
+    // filenames.forEach(file => {
+    //     copyFile(`files/${file}`, `files-copy/${file}`, () => {});
+    // })
+    console.log(filenames)
 }
 
 copyDIR()
