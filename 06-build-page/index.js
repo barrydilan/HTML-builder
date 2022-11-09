@@ -66,4 +66,4 @@ async function copyDir(input, output) {
 
 makeDirectory();
 copyDir(path.join(__dirname, 'assets'), path.join(__dirname, 'project-dist/assets'));
-assembleHtmlCss("template.html", 'components', 'project-dist/index.html')
+assembleHtmlCss(path.join(__dirname,"template.html"), path.join(__dirname,'components'), path.join(__dirname,'project-dist/index.html'))
